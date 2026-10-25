@@ -27,9 +27,16 @@ HWP/PDF 5개 문서만 근거로 답변하는 Agentic RAG. LangChain + Chroma + 
 1. [완료] baseline / `clean_hwp` / `source_prefix` 2x2 -> 둘 다 켠 구성이 최고
 2. [진행] `section_prefix`: 청크에 소속 전형 제목 부착 (문서 자체의 'OO 전형' 제목 줄 사용)
 3. [완료·코랩 확인 대기] 견고성 패치(타임아웃/재시도/폴백, `.content` 리스트 처리, 재귀 glob, 로드 경고, 버전 출력). 정확도 변화 없어야 함, `fails` 열로 오류 경로 확인
-4. [진행] `interview_rows`: 05 면접일정표(★ 행렬) 88행을 "학과 | 날짜 오전/오후"로 풀어쓴 청크 추가 (평문 추출로는 날짜 열을 알 수 없음). dev 54문항(05·01 질문 13개 추가)
+4. [코랩 확인함, 개선판 대기] `interview_rows`: 05 면접일정표(★ 행렬) 88행을 "학과 | 날짜 오전/오후"로 풀어쓴 청크 추가 (평문 추출로는 날짜 열을 알 수 없음). dev 54문항(05·01 질문 13개 추가)
+   - 54문항 결과: robust(견고성 패치) acc 0.815 / 2.26s / fails 0 / max 3.4s -> 05 학과별 날짜 7문항 전부 오답(예상대로), 01 재외국민 6문항 전부 정답
+   - interview_rows v1(학과 1행=1청크, 88개) acc 0.833: 05 학과별 7문항 전부 정답 / 그러나 #15 #17 #19 면접 전반 질문이 오답(행 청크가 원본 표 청크를 밀어냄), #21 #32 #38 #40은 잡음 의심
+   - v2: 행을 ~700자씩 묶어 8청크로 축소(지역균형 6개 학과가 한 청크). 코랩 재측정 필요
+   - 측정 잡음: 같은 설정도 1~4문항 뒤집힘 -> run_eval(repeats=2)로 always_wrong/flaky 구분
 5. 다음: 구조 기반 청킹(문서 자체 소제목 기준), 프롬프트 보강, `doc` 필터 인자
 6. 이후: 시간 여유(약 3초)를 정확도에 사용 - k / bm25_k 증가, 표 파싱 개선(PDF), 모델 변경 순으로 하나씩
+
+## 버전 (코랩 정상 동작 확인 조합, 노트북 pip에 고정)
+langchain 1.4.7, langchain-core 1.7.0, langchain-openai 1.7.2, langchain-community 0.4.2, langchain-chroma 1.1.0, langgraph 1.2.16, chromadb 1.5.9, langchain-hwp-hwpx-loader 0.2.1, pdfplumber 0.11.10, rank-bm25 0.2.2, kiwipiepy 0.24.1
 
 ## 메모
 - 01 hwp는 배포용 HWP -> `HwpHwpxLoader(..., distribution_backend="pyhwp")` 필요 (extra `[distribution]`). 로컬 파싱 확인: 요소 19개(표 18), 약 7.9만자
