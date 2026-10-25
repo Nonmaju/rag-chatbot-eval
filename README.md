@@ -8,14 +8,20 @@ HWP/PDF 5개 문서만 근거로 답변하는 Agentic RAG. LangChain + Chroma + 
 - 웹검색/외부자료/질문·정답 사전등록 시 전체 0점. 제출 전 API 키 제거
 
 ## 금지 / 허용 (절대 어기지 말 것)
-- 금지: 웹 검색/크롤링/외부 사이트 조회, 제공 문서 외 자료 DB 투입, 질문·정답 사전등록, **문서 원문 재가공(텍스트 정제·요약·재작성 등)**, LLM 사전지식으로만 답변
-- 허용: 키워드(BM25) 검색, 파싱/임베딩 API, 답변 생성 LLM API, 분할(chunking), Vector DB 검색
+- 금지: 웹 검색/크롤링/외부 사이트 조회, 제공 문서 외 자료 DB 투입, 질문·정답 사전등록, **데이터 자체의 조작(문서에 없는 내용 추가·변조, 정답 삽입)**, LLM 사전지식으로만 답변
+- 허용: 로드 후 전처리(정제·정규화·메타데이터/출처 부착 등 원문 의미를 바꾸지 않는 것), 키워드(BM25) 검색, 파싱/임베딩 API, 답변 생성 LLM API, 분할(chunking), Vector DB 검색
 - 지켜야 할 것: 제출 전 API 키 제거, 파일명 `학번_이름.ipynb`
 
 ## 파일
 - `rag_midterm.ipynb` : 제출용(1~5) + 개발용 평가(6, 제출 전 삭제)
 - `dev_questions.csv` : 로컬 평가셋 (공개 샘플 3개로 시작, 직접 추가). 노트북/검색 데이터에는 절대 넣지 않음
 - 데이터(`docs/`), 캐시, 키는 커밋하지 않음
+
+## 실험 계획 (한 번에 하나, 같은 dev_questions.csv 32문항)
+1. baseline 재측정 (32문항)
+2. `clean_hwp=True` : HWP 표 잡음 제거 (79k -> 19k자)
+3. `source_prefix=True` : 청크에 출처 부착
+4. k / bm25_k / chunk_size, 모델(gpt-5.4-nano 등)로 시간 조정
 
 ## 메모
 - 01 hwp는 배포용 HWP -> `HwpHwpxLoader(..., distribution_backend="pyhwp")` 필요 (extra `[distribution]`). 로컬 파싱 확인: 요소 19개(표 18), 약 7.9만자
@@ -24,4 +30,4 @@ HWP/PDF 5개 문서만 근거로 답변하는 Agentic RAG. LangChain + Chroma + 
 ## 실험 로그 (est_50q = 문항당 평균점수 x 50)
 | # | 이름 | 변경 | 정확도 | 평균시간(s) | est_50q | 채택 |
 |---|------|------|--------|-------------|---------|------|
-| 0 | baseline | chunk800/100, k4+bm25 4, gpt-5.4-mini | | | | |
+| 0 | baseline | chunk800/100, k4+bm25 4, gpt-5.4-mini (샘플 3문항) | 1.0 | 2.4 | 100 | 기준 |

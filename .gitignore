@@ -6,3 +6,4 @@ cache/
 chroma_*/
 .ipynb_checkpoints/
 .env
+_txt/
