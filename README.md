@@ -18,10 +18,8 @@ HWP/PDF 5개 문서만 근거로 답변하는 Agentic RAG. LangChain + Chroma + 
 - 데이터(`docs/`), 캐시, 키는 커밋하지 않음
 
 ## 실험 계획 (한 번에 하나, 같은 dev_questions.csv 32문항)
-1. baseline 재측정 (32문항)
-2. `clean_hwp=True` : HWP 표 잡음 제거 (79k -> 19k자)
-3. `source_prefix=True` : 청크에 출처 부착
-4. k / bm25_k / chunk_size, 모델(gpt-5.4-nano 등)로 시간 조정
+1. [완료] baseline / `clean_hwp` / `source_prefix` 2x2 -> 둘 다 켠 구성이 최고
+2. 다음: 시간 여유(약 3초)를 정확도에 사용 - k / bm25_k 증가, 표 파싱 개선(PDF), 모델 변경 순으로 하나씩
 
 ## 메모
 - 01 hwp는 배포용 HWP -> `HwpHwpxLoader(..., distribution_backend="pyhwp")` 필요 (extra `[distribution]`). 로컬 파싱 확인: 요소 19개(표 18), 약 7.9만자
@@ -30,4 +28,11 @@ HWP/PDF 5개 문서만 근거로 답변하는 Agentic RAG. LangChain + Chroma + 
 ## 실험 로그 (est_50q = 문항당 평균점수 x 50)
 | # | 이름 | 변경 | 정확도 | 평균시간(s) | est_50q | 채택 |
 |---|------|------|--------|-------------|---------|------|
-| 0 | baseline | chunk800/100, k4+bm25 4, gpt-5.4-mini (샘플 3문항) | 1.0 | 2.4 | 100 | 기준 |
+| 0 | baseline | chunk800/100, k4+bm25 4, gpt-5.4-mini (샘플 3문항만) | 1.0 | 2.4 | 100 | 표본 부족 |
+| 1 | clean=0, prefix=0 | 32문항 baseline | 0.844 | 1.96 | 84.4 | 기준 |
+| 2 | clean=1, prefix=0 | HWP 표 잡음 제거 | 0.906 | 1.84 | 90.6 | 채택 |
+| 3 | clean=0, prefix=1 | 출처 접두어 | 0.812 | 1.96 | 81.2 | 단독은 이득 없음 |
+| 4 | clean=1, prefix=1 | 둘 다 | 0.969 | 1.90 | 96.9 | **현재 최고** |
+
+주의: n=32이고 1문항=3.1%p, LLM 비결정성 때문에 1회 측정 차이는 오차 범위일 수 있음. 평균시간 1.9초로 5초 한도까지 약 3초 여유.
+지속 오답: #14 정시 전체 입학정원 합계(3,938명, PDF 표 끝 "계" 셀), #6 정시 일반전형2 활용지표(2027 vs 2026 열 혼동), #9 충원 발표 마감.
