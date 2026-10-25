@@ -12,6 +12,10 @@ HWP/PDF 5개 문서만 근거로 답변하는 Agentic RAG. LangChain + Chroma + 
 - 허용: 로드 후 전처리(정제·정규화·메타데이터/출처 부착 등 원문 의미를 바꾸지 않는 것), 키워드(BM25) 검색, 파싱/임베딩 API, 답변 생성 LLM API, 분할(chunking), Vector DB 검색
 - 지켜야 할 것: 제출 전 API 키 제거, 파일명 `학번_이름.ipynb`
 
+## 제출 파일
+- `submission_rag_midterm.ipynb`: 섹션 1~5만 포함(개발용 평가 셀·dev 질문·키 없음). 최고 측정 구성(rows_v3: clean_hwp, source_prefix, interview_rows=True, 54문항 2회 평균 acc 0.926, 평균 2.33s, fails 0) 기본값
+- 제출 시 파일명을 `학번_이름.ipynb`로 바꿔서 bloomaikr@gmail.com 으로 전송
+
 ## 제출 전 체크리스트
 - [ ] 노트북 6) 개발용 평가 셀 전부 삭제 (dev 질문/정답 파일 경로, judge, run_eval 포함)
 - [ ] API 키 비우기 (`os.environ` 값, Colab Secrets 사용 시 코드에 키 없음 확인)
